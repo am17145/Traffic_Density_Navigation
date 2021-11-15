@@ -12,7 +12,7 @@ def createmodel(id, city):
     df_new = groupedbyid.get_group(id)
     flow = df_new['flow']
     time = []
-    x = 0
+    x = 1
     for row in df_new.itertuples():
         if row.day == '2017-05-06':
             time.append(row.interval)
@@ -20,10 +20,10 @@ def createmodel(id, city):
             temp = row.interval + (86100 * x)
             time.append(temp)
         x+=1
-    model = numpy.poly1d(numpy.polyfit(time, flow, 9))
-    line = numpy.linspace(10, 1722000, 300)
+    model = numpy.poly1d(numpy.polyfit(time,flow, 10))
+    line = numpy.linspace(0, 86100 * 20)
     plt.scatter(time, flow)
-    plt.plot(line, model(line))
+    plt.plot(line,model(line))
     plt.show()
 
 
