@@ -43,8 +43,8 @@ def GetFlow(id,currentinteval):
         return y
 
     popt, pcov = curve_fit(function, interval, flow)
-    temp =  popt[0]*np.sin(popt[1]*currentinteval+popt[2])+popt[3]
-    print(popt,'\n',temp)
+    weight =  popt[0]*np.sin(popt[1]*currentinteval+popt[2])+popt[3]
+    return weight
 
 def GetCurrentInterval():
     time = datetime.now().strftime('%H:%M:%S')
