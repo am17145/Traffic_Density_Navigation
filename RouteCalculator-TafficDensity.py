@@ -1,8 +1,11 @@
 import math
 from datetime import datetime
+
 import numpy as np
 import pandas as pd
 from libpysal.weights import lat2W
+from scipy.optimize import leastsq, curve_fit
+
 filename = 'DatabyCities/augsburg'
 columns = ['day', 'interval', 'detid', 'flow', 'occ', 'error', 'city', 'speed']
 df = pd.read_csv(filename, header=0, names=columns)
@@ -23,28 +26,29 @@ gridsize = math.sqrt(len(pd.unique(df.detid)))
 gridsize += 1
 g = lat2W(4,4)
 g.neighbors
+
 def GetFlow(id,currentinteval):
     groupedbyid = df.groupby('newIds')
     df_new = groupedbyid.get_group(id)
     flow = []
     interval = []
-    x = 0
+    count = 0
     for row in df_new.itertuples():
-        interval.append(row.interval +(86100 * x))
+        interval.append(row.interval)
         flow.append(row.flow)
-        if(x < 6):
-            x+=1
-        else:
-            x = 0
-    temp = np.interp(currentinteval,interval,flow)
-    print(temp)
-    return temp
+        count+=1
+
+    def function(x, A, b, phi, c):
+        y = A * np.sin(b * x + phi) + c
+        return y
+
+    popt, pcov = curve_fit(function, interval, flow)
+    temp =  popt[0]*np.sin(popt[1]*currentinteval+popt[2])+popt[3]
+    print(popt,'\n',temp)
 
 def GetCurrentInterval():
-    day = datetime.today().weekday()
     time = datetime.now().strftime('%H:%M:%S')
     hh, mm, ss = time.split(':')
-    CurrentInterval = (int(hh) * 3600 + int(mm) * 60 + int(ss)) + (day * 86100)
+    CurrentInterval = (int(hh) * 3600 + int(mm) * 60 + int(ss))
     return CurrentInterval
-GetCurrentInterval()
 GetFlow('s 1',GetCurrentInterval())
